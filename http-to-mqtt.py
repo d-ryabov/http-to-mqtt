@@ -20,7 +20,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       record_id = self.path.split('/')[-1]
       LocalData.records[record_id] = data
 
-      logger.debug('Set \"{0}\": \"{1}\"'.format(record_id, data))
+      logger.debug('Set \"{0}\": value: {1}'.format(record_id, data))
       self.send_response(200)
     else:
       self.send_response(403)
@@ -36,7 +36,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
         # Return json, even though it came in as POST URL params
         data = json.dumps(LocalData.records[record_id]).encode('utf-8')
-        logger.debug('Get \"{0}\": \"{1}\"'.format(record_id, data))
+        logger.debug('Get \"{0}\" value: {1}'.format(record_id, data))
         self.wfile.write(data)
       else:
         self.send_response(404, 'Not Found: record does not exist')
