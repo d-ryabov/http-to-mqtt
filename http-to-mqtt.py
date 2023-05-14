@@ -22,7 +22,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       LocalData.records[record_id] = data
 
       logger.debug('Set \"{0}\": value: {1}'.format(record_id, data))
-      for key,value in json.load(data):
+      for key,value in data:
         logger.debug('burk38k7/{0}/{1}={2}'.format(record_id, key,value))
         mqtt_client.publish('burk38k7/{0}/{1}'.format(record_id, key),value)
       self.send_response(200)
