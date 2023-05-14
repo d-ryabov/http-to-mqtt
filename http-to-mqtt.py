@@ -24,9 +24,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       logger.debug('Set \"{0}\": value: {1}'.format(record_id, data))
       t_dictionary = json.loads(data)
       logger.debug(t_dictionary)
-      for key,value in t_dictionary:
-        logger.debug('burk38k7/{0}/{1}={2}'.format(record_id, key,value))
-        mqtt_client.publish('burk38k7/{0}/{1}'.format(record_id, key),value)
+      for key in t_dictionary:
+        logger.debug('burk38k7/{0}/{1}={2}'.format(record_id, key,t_dictionary[key]))
+        mqtt_client.publish('burk38k7/{0}/{1}'.format(record_id, key),t_dictionary[key])
       self.send_response(200)
     else:
       self.send_response(403)
