@@ -23,7 +23,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       record_id = self.path.split('/')[-1]
       LocalData.records[record_id] = data
 
-      self.logger.info('Set \"{0}\": \"{1}\"'.format(record_id, data))
+      self.logger.debug('Set \"{0}\": \"{1}\"'.format(record_id, data))
       self.send_response(200)
     else:
       self.send_response(403)
@@ -39,7 +39,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
         # Return json, even though it came in as POST URL params
         data = json.dumps(LocalData.records[record_id]).encode('utf-8')
-        self.logger.info('Get \"{0}\": \"{1}\"'.format(record_id, data))
+        self.logger.debug('Get \"{0}\": \"{1}\"'.format(record_id, data))
         self.wfile.write(data)
       else:
         self.send_response(404, 'Not Found: record does not exist')
@@ -68,20 +68,20 @@ def get_logger(name):
 
   logger.handlers.append(handlerStdout)
   logger.handlers.append(handlerFile)
-  logger.setLevel("INFO")
+  logger.setLevel("DEBUG")
 
   return logging.getLogger()
     
 if __name__ == '__main__':
   logger = get_logger('main')
   server = HTTPServer(('', pargs.port), HTTPRequestHandler(logger))
-  logger.info('Starting httpd...')
+  logger.debug('Starting httpd...')
   try:
     server.serve_forever()
   except KeyboardInterrupt:
-    logger.info('Interrupted from keyboard')
+    logger.debug('Interrupted from keyboard')
     pass
   finally:
-    logger.info('Stopping httpd...')
+    logger.debug('Stopping httpd...')
     server.server_close()
     
