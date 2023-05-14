@@ -2,6 +2,7 @@ import argparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
+from logging.handlers import TimedRotatingFileHandler
 import re
 import os
 import sys
