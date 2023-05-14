@@ -1,17 +1,18 @@
 import argparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-import log
+import logging
 import re
 import os
+import sys
 
 
 class LocalData(object):
   records = {}
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
-  def __init__(self):
-    self.logger = log.get_logger('main')
+  def __init__(self, logger):
+    self.logger = logger
 
   def do_POST(self):
     if re.search('/api/post/*', self.path):
@@ -50,17 +51,36 @@ parser.add_argument('--port', metavar='port', type=int, default=8000,
           help='HTTP server port')
 pargs = parser.parse_args()
 
+def get_logger(name):
+  logname = '{0}.log'.format(os.path.basename(__file__).split('.')[0])
+  logger = logging.getLogger(name)
+  logger.handlers.clear()
+
+  rootFormatter = logging.Formatter('%(filename)-17.17s:%(lineno)-4s %(asctime)-15s [%(levelname)-5.5s]: %(message)-s')
+
+  handlerStdout = logging.StreamHandler(sys.stdout)
+  handlerStdout.setFormatter(rootFormatter)
+
+  handlerFile = logging.handlers.TimedRotatingFileHandler(logname, when='midnight', backupCount=int(10))
+
+  handlerFile.setFormatter(rootFormatter)
+
+  logger.handlers.append(handlerStdout)
+  logger.handlers.append(handlerFile)
+  logger.setLevel("INFO")
+
+  return logging.getLogger()
     
 if __name__ == '__main__':
-  #logger = log.get_logger('main')
-  server = HTTPServer(('', pargs.port), HTTPRequestHandler)
-  #logger.info('Starting httpd...')
+  logger = get_logger('main')
+  server = HTTPServer(('', pargs.port), HTTPRequestHandler(logger))
+  logger.info('Starting httpd...')
   try:
     server.serve_forever()
   except KeyboardInterrupt:
-    #logger.info('Interrupted from keyboard')
+    logger.info('Interrupted from keyboard')
     pass
   finally:
-    #logger.info('Stopping httpd...')
+    logger.info('Stopping httpd...')
     server.server_close()
     
