@@ -53,7 +53,7 @@ pargs = parser.parse_args()
     
 if __name__ == '__main__':
   #logger = log.get_logger('main')
-  server = HTTPServer(('', pargs.http_port), HTTPRequestHandler)
+  server = HTTPServer(('', pargs.port), HTTPRequestHandler)
   #logger.info('Starting httpd...')
   try:
     server.serve_forever()
