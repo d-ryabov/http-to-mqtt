@@ -46,7 +46,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     self.end_headers()
 
 parser = argparse.ArgumentParser(prog=os.path.basename(__file__), description='Simple HTTP server for receiving data and then sending to MQTT.')
-parser.add_argument('--http_port', metavar='http_port', type=int, default=8000,
+parser.add_argument('--port', metavar='port', type=int, default=8000,
           help='HTTP server port')
 pargs = parser.parse_args()
 
