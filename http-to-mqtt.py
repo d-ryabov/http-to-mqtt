@@ -12,9 +12,6 @@ class LocalData(object):
   records = {}
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
-  def __init__(self, logger):
-    self.logger = logger
-
   def do_POST(self):
     if re.search('/api/post/*', self.path):
       length = int(self.headers.get('content-length'))
@@ -71,10 +68,12 @@ def get_logger():
   logger.setLevel("DEBUG")
 
   return logging.getLogger()
-    
+
+global logger
+logger = get_logger()
+
 if __name__ == '__main__':
-  logger = get_logger()
-  server = HTTPServer(('', pargs.port), HTTPRequestHandler(logger))
+  server = HTTPServer(('', pargs.port), HTTPRequestHandler)
   logger.debug('Starting httpd...')
   try:
     server.serve_forever()
