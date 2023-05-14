@@ -52,9 +52,9 @@ parser.add_argument('--port', metavar='port', type=int, default=8000,
           help='HTTP server port')
 pargs = parser.parse_args()
 
-def get_logger(name):
+def get_logger():
   logname = '{0}.log'.format(os.path.basename(__file__).split('.')[0])
-  logger = logging.getLogger(name)
+  logger = logging.getLogger()
   logger.handlers.clear()
 
   rootFormatter = logging.Formatter('%(filename)-17.17s:%(lineno)-4s %(asctime)-15s [%(levelname)-5.5s]: %(message)-s')
@@ -73,7 +73,7 @@ def get_logger(name):
   return logging.getLogger()
     
 if __name__ == '__main__':
-  logger = get_logger('main')
+  logger = get_logger()
   server = HTTPServer(('', pargs.port), HTTPRequestHandler(logger))
   logger.debug('Starting httpd...')
   try:
