@@ -26,7 +26,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       logger.debug(t_dictionary)
       for key in t_dictionary:
         logger.debug('burk38k7/{0}/{1}={2}'.format(record_id, key,t_dictionary[key]))
-        mqtt_client.publish('burk38k7/{0}/{1}'.format(record_id, key),t_dictionary[key])
+        mqtt_client.publish('burk38k7/{0}/{1}'.format(record_id, key),str(t_dictionary[key]))
       self.send_response(200)
     else:
       self.send_response(403)
