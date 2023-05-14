@@ -3,8 +3,9 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import logging
 from logging.handlers import TimedRotatingFileHandler
-import re
 import os
+import paho.mqtt.client as mqtt
+import re
 import sys
 
 
@@ -21,6 +22,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       LocalData.records[record_id] = data
 
       logger.debug('Set \"{0}\": value: {1}'.format(record_id, data))
+      for key,value in json.load(data):
+        mqtt_client.publish("burk38k7/{0}/{1}".format(record_id, key),value)
       self.send_response(200)
     else:
       self.send_response(403)
@@ -70,12 +73,16 @@ def get_logger():
   return logging.getLogger()
 
 global logger
+global mqtt_client
 logger = get_logger()
+mqtt_client = mqtt.Client("P1")
 
 if __name__ == '__main__':
   server = HTTPServer(('', pargs.port), HTTPRequestHandler)
   logger.debug('Starting httpd...')
   try:
+    broker_address="127.0.0.1" 
+    mqtt_client.connect(broker_address)
     server.serve_forever()
   except KeyboardInterrupt:
     logger.debug('Interrupted from keyboard')
