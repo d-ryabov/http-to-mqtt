@@ -99,7 +99,7 @@ if __name__ == '__main__':
   logger = get_logger()
   logger.debug('APP: Started')
   mqtt_client = get_mqtt_client()
-  server = HTTPServer(('', pargs.port), HTTPRequestHandler)
+  server = HTTPServer(('', 8000), HTTPRequestHandler)
 
   try:
     logger.debug('HTTP: Starting httpd...')
