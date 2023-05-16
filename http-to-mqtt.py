@@ -80,7 +80,7 @@ def get_mqtt_client():
   mqtt_client = mqtt.Client('mqtt_server')
   logger.debug('MQTT: Connecting to {0}...'.format(os.environ['MQTT_ADDR']))
   try:
-    mqtt_client.connect(os.environ['MQTT_ADDR'], port=os.environ['MQTT_PORT'])
+    mqtt_client.connect(str(os.environ['MQTT_ADDR']), port=int(os.environ['MQTT_PORT']))
     logger.debug('MQTT: Connected')
   except BaseException:
     logger.exception('MQTT: An error occured during the connection. Application will shut down')
@@ -97,9 +97,9 @@ pargs = parser.parse_args()
 
 if __name__ == '__main__':
   logger = get_logger()
-  logger.debug('APP: %(prog)s {version} started'.format(version=__version__))
+  logger.debug('APP: {0} {1} started'.format(os.path.basename(__file__), __version__))
   mqtt_client = get_mqtt_client()
-  server = HTTPServer((os.environ['HTTP_ADDR'], os.environ['HTTP_PORT']), HTTPRequestHandler)
+  server = HTTPServer((str(os.environ['HTTP_ADDR']), int(os.environ['HTTP_PORT'])), HTTPRequestHandler)
 
   try:
     logger.debug('HTTP: Starting httpd...')
