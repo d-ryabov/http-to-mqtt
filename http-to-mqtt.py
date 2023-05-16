@@ -1,5 +1,3 @@
-#!/bin/python3.9
-
 import argparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
@@ -92,7 +90,7 @@ def get_mqtt_client():
   return mqtt_client
 
 parser = argparse.ArgumentParser(prog=os.path.basename(__file__), description='Simple HTTP server for receiving data and then sending to MQTT.')
-parser.add_argument('--version', action='version',
+parser.add_argument('-v', '--version', action='version',
                     version='%(prog)s {version}'.format(version=__version__))
 pargs = parser.parse_args()
 
