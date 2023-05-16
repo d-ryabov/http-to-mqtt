@@ -9,6 +9,7 @@ import os
 import paho.mqtt.client as mqtt
 import re
 import sys
+import traceback
 
 
 class LocalData(object):
@@ -19,17 +20,15 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     if re.search('/api/post/*', self.path):
       length = int(self.headers.get('content-length'))
       data = self.rfile.read(length).decode('utf8')
+      logger.debug('HTTP: Recieved POST at {0}. Payload: {1}'.format(self.path, data))
 
-      #record_id = self.path.split('/')[-1]
-      record_id = self.path.split('api/post')[1]
-      LocalData.records[record_id] = data
+      topic_id = self.path.split('api/post')[1]
+      LocalData.records[topic_id] = json.loads(data)
+      logger.debug('LocalData: Put {0} to {1}'.format(data,topic_id))
 
-      logger.debug('Set \"{0}\": value: {1}'.format(record_id, data))
-      t_dictionary = json.loads(data)
-      logger.debug(t_dictionary)
-      for key in t_dictionary:
-        logger.debug('Sending {2} to {0}/{1}'.format(record_id, key,t_dictionary[key]))
-        mqtt_client.publish('{0}/{1}'.format(record_id, key),str(t_dictionary[key]))
+      for value in LocalData.records[topic_id]:
+        logger.debug('MQTT: Sending {0} to {1}/{2}'.format(LocalData.records[topic_id][value], topic_id, value))
+        mqtt_client.publish('{0}/{1}'.format(topic_id, value),LocalData.records[topic_id][value])
       self.send_response(200)
     else:
       self.send_response(403)
@@ -37,16 +36,15 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
   def do_GET(self):
     if re.search('/api/get/*', self.path):
-      #record_id = self.path.split('/')[-1]
-      record_id = self.path.split('api/get')[1]
-      if record_id in LocalData.records:
+      topic_id = self.path.split('api/get')[1]
+      if topic_id in LocalData.records:
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
 
         # Return json, even though it came in as POST URL params
-        data = json.dumps(LocalData.records[record_id]).encode('utf-8')
-        logger.debug('Get \"{0}\" value: {1}'.format(record_id, data))
+        data = json.dumps(LocalData.records[topic_id]).encode('utf-8')
+        logger.debug('LocalData: Get {0} from {1}'.format(data,topic_id))
         self.wfile.write(data)
       else:
         self.send_response(404, 'Not Found: record does not exist')
@@ -79,20 +77,29 @@ def get_logger():
 
   return logging.getLogger()
 
-#global logger
-#global mqtt_client
+def get_mqtt_client():
+  logger.debug('MQTT: Creating client')
+  mqtt_client = mqtt.Client('mqtt_server')
+  broker_address="172.21.0.2"
+  logger.debug('MQTT: Connecting to {0}...'.format(broker_address))
+  try:
+    mqtt_client.connect(broker_address)
+    logger.debug('MQTT: Connected')
+  except BaseException:
+    logger.exception('MQTT: An error occured during the connection. Application will shut down')
+    sys.exit(1)
+
+  return mqtt_client
 
 if __name__ == '__main__':
   logger = get_logger()
-  mqtt_client = mqtt.Client('mqtt_server')
+  mqtt_client = get_mqtt_client()
   server = HTTPServer(('', pargs.port), HTTPRequestHandler)
-  logger.debug('Starting httpd...')
+  logger.debug('HTTP: Starting httpd...')
   try:
-    broker_address="172.21.0.2"
-    mqtt_client.connect(broker_address)
     server.serve_forever()
   except KeyboardInterrupt:
     logger.debug('Interrupted from keyboard')
   finally:
-    logger.debug('Stopping httpd...')
+    logger.debug('HTTP: Stopping httpd...')
     server.server_close()
