@@ -20,15 +20,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       length = int(self.headers.get('content-length'))
       data = self.rfile.read(length).decode('utf8')
 
-      record_id = self.path.split('/')[-1]
+      #record_id = self.path.split('/')[-1]
+      record_id = self.path.split('api/post')[1]
       LocalData.records[record_id] = data
 
       logger.debug('Set \"{0}\": value: {1}'.format(record_id, data))
       t_dictionary = json.loads(data)
       logger.debug(t_dictionary)
       for key in t_dictionary:
-        logger.debug('/burk38k7/{0}/{1}={2}'.format(record_id, key,t_dictionary[key]))
-        mqtt_client.publish('/burk38k7/{0}/{1}'.format(record_id, key),str(t_dictionary[key]))
+        logger.debug('Sending {2} to {0}/{1}'.format(record_id, key,t_dictionary[key]))
+        mqtt_client.publish('{0}/{1}'.format(record_id, key),str(t_dictionary[key]))
       self.send_response(200)
     else:
       self.send_response(403)
@@ -36,7 +37,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
   def do_GET(self):
     if re.search('/api/get/*', self.path):
-      record_id = self.path.split('/')[-1]
+      #record_id = self.path.split('/')[-1]
+      record_id = self.path.split('api/get')[1]
       if record_id in LocalData.records:
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
@@ -77,21 +79,20 @@ def get_logger():
 
   return logging.getLogger()
 
-global logger
-global mqtt_client
-logger = get_logger()
-mqtt_client = mqtt.Client("P1")
+#global logger
+#global mqtt_client
 
 if __name__ == '__main__':
+  logger = get_logger()
+  mqtt_client = mqtt.Client('mqtt_server')
   server = HTTPServer(('', pargs.port), HTTPRequestHandler)
   logger.debug('Starting httpd...')
   try:
-    broker_address="172.21.0.2" 
+    broker_address="172.21.0.2"
     mqtt_client.connect(broker_address)
     server.serve_forever()
   except KeyboardInterrupt:
     logger.debug('Interrupted from keyboard')
-    pass
   finally:
     logger.debug('Stopping httpd...')
     server.server_close()
