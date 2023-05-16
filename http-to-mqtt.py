@@ -1,3 +1,5 @@
+#!/bin/python3.9
+
 import argparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
@@ -93,4 +95,3 @@ if __name__ == '__main__':
   finally:
     logger.debug('Stopping httpd...')
     server.server_close()
-    
