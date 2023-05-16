@@ -86,7 +86,7 @@ if __name__ == '__main__':
   server = HTTPServer(('', pargs.port), HTTPRequestHandler)
   logger.debug('Starting httpd...')
   try:
-    broker_address="127.0.0.1" 
+    broker_address="172.21.0.2" 
     mqtt_client.connect(broker_address)
     server.serve_forever()
   except KeyboardInterrupt:
