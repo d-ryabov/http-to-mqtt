@@ -1,7 +1,7 @@
 FROM python:3 AS builder
 WORKDIR /app
 COPY . .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r ./requirements.txt
 RUN pip install pyinstaller
 RUN pyinstaller --onefile http-to-mqtt.py
 
