@@ -102,7 +102,7 @@ if __name__ == '__main__':
   server = HTTPServer((str(os.environ['HTTP_ADDR']), int(os.environ['HTTP_PORT'])), HTTPRequestHandler)
 
   try:
-    logger.debug('HTTP: Starting httpd...')
+    logger.debug('HTTP: Starting httpd at {0}:{1}...'.format((str(os.environ['HTTP_ADDR']), int(os.environ['HTTP_PORT']))))
     server.serve_forever()
   except KeyboardInterrupt:
     logger.debug('APP: Interrupted from keyboard')
