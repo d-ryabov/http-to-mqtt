@@ -89,6 +89,7 @@ def connect_to_mqtt(mqtt_client):
       logger.debug('MQTT: Connecting to {0}...'.format(os.environ['MQTT_ADDR']))
       mqtt_client.connect(str(os.environ['MQTT_ADDR']), port=int(os.environ['MQTT_PORT']))
       logger.debug('MQTT: Connected')
+      mqtt_server_connected = True
     else:
       logger.debug('MQTT: Reconnecting to {0}...'.format(os.environ['MQTT_ADDR']))
       mqtt_client.reconnect()
