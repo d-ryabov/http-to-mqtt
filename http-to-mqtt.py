@@ -24,6 +24,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       LocalData.records[topic_id] = json.loads(data)
       logger.debug('LocalData: Put {0} to {1}'.format(data,topic_id))
 
+      connect_to_mqtt(mqtt_client)
       for value in LocalData.records[topic_id]:
         logger.debug('MQTT: Sending {0} to {1}/{2}'.format(LocalData.records[topic_id][value], topic_id, value))
         mqtt_client.publish('{0}/{1}'.format(topic_id, value),LocalData.records[topic_id][value])
@@ -96,7 +97,7 @@ def connect_to_mqtt(mqtt_client):
     logger.exception('MQTT: An error occured during the connection. Application will shut down')
     sys.exit(1)
 
-def disconnect_from_mqtt():
+def disconnect_from_mqtt(mqtt_client):
   logger.debug('MQTT: Disconnecting from {0}...'.format(os.environ['MQTT_ADDR']))
   try:
     mqtt_client.disconnect()
@@ -127,4 +128,5 @@ if __name__ == '__main__':
   finally:
     logger.debug('HTTP: Stopping httpd...')
     server.server_close()
+    disconnect_from_mqtt(mqtt_client)
     logger.debug('APP: Finished')
