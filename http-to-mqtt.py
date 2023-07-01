@@ -78,11 +78,11 @@ def get_logger():
 def get_mqtt_client():
   logger.debug('MQTT: Creating client')
   mqtt_client = mqtt.Client('mqtt_server')
-  connect_to_mqtt()
+  connect_to_mqtt(mqtt_client)
 
   return mqtt_client
 
-def connect_to_mqtt():
+def connect_to_mqtt(mqtt_client):
   try:
     if not mqtt_server_connected:
       logger.debug('MQTT: Connecting to {0}...'.format(os.environ['MQTT_ADDR']))
