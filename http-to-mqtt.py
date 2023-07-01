@@ -78,15 +78,32 @@ def get_logger():
 def get_mqtt_client():
   logger.debug('MQTT: Creating client')
   mqtt_client = mqtt.Client('mqtt_server')
-  logger.debug('MQTT: Connecting to {0}...'.format(os.environ['MQTT_ADDR']))
+  connect_to_mqtt()
+
+  return mqtt_client
+
+def connect_to_mqtt():
   try:
-    mqtt_client.connect(str(os.environ['MQTT_ADDR']), port=int(os.environ['MQTT_PORT']))
-    logger.debug('MQTT: Connected')
+    if not mqtt_server_connected:
+      logger.debug('MQTT: Connecting to {0}...'.format(os.environ['MQTT_ADDR']))
+      mqtt_client.connect(str(os.environ['MQTT_ADDR']), port=int(os.environ['MQTT_PORT']))
+      logger.debug('MQTT: Connected')
+    else:
+      logger.debug('MQTT: Reconnecting to {0}...'.format(os.environ['MQTT_ADDR']))
+      mqtt_client.reconnect()
+      logger.debug('MQTT: Reconnected')
   except BaseException:
     logger.exception('MQTT: An error occured during the connection. Application will shut down')
     sys.exit(1)
 
-  return mqtt_client
+def disconnect_from_mqtt():
+  logger.debug('MQTT: Disconnecting from {0}...'.format(os.environ['MQTT_ADDR']))
+  try:
+    mqtt_client.disconnect()
+    logger.debug('MQTT: Disconnected')
+  except BaseException:
+    logger.exception('MQTT: An error occured during the disconnection. Application will shut down')
+    sys.exit(1)
 
 
 parser = argparse.ArgumentParser(prog=os.path.basename(__file__), description='Simple HTTP server for receiving data and then sending to MQTT.')
@@ -98,6 +115,7 @@ pargs = parser.parse_args()
 if __name__ == '__main__':
   logger = get_logger()
   logger.debug('APP: {0} {1} started'.format(os.path.basename(__file__), __version__))
+  mqtt_server_connected = False
   mqtt_client = get_mqtt_client()
   server = HTTPServer((str(os.environ['HTTP_ADDR']), int(os.environ['HTTP_PORT'])), HTTPRequestHandler)
 
