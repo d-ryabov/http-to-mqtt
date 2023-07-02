@@ -25,8 +25,11 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
       logger.debug('LocalData: Put {0} to {1}'.format(data,topic_id))
 
       for value in LocalData.records[topic_id]:
+        logger.debug('MQTT: Reconnecting to {0}...'.format(os.environ['MQTT_ADDR']))
+        mqtt_client.reconnect()
         logger.debug('MQTT: Sending {0} to {1}/{2}'.format(LocalData.records[topic_id][value], topic_id, value))
         mqtt_client.publish('{0}/{1}'.format(topic_id, value),LocalData.records[topic_id][value])
+        logger.debug('MQTT: Data published')
       self.send_response(200)
     else:
       logger.debug('HTTP: Incorrect path')
@@ -109,4 +112,6 @@ if __name__ == '__main__':
   finally:
     logger.debug('HTTP: Stopping httpd...')
     server.server_close()
+    logger.debug('MQTT: Disconnecting from {0}...'.format(os.environ['MQTT_ADDR']))
+    mqtt_client.disconnect()
     logger.debug('APP: Finished')
